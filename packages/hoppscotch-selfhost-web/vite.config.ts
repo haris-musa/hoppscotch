@@ -90,6 +90,7 @@ export default defineConfig({
       "@app/api": path.resolve(__dirname, "./src/api"),
       "@app/lib": path.resolve(__dirname, "./src/lib"),
       "@app/kernel": path.resolve(__dirname, "./src/kernel"),
+      "@app/modules": path.resolve(__dirname, "./src/modules"),
 
       // Node.js polyfills
       stream: "stream-browserify",

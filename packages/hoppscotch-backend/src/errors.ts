@@ -74,6 +74,12 @@ export const USER_NOT_FOUND = 'user/not_found' as const;
 export const USER_ALREADY_INVITED = 'admin/user_already_invited' as const;
 
 /**
+ * User is not authorized to sign in (not a member or invited to any workspace)
+ * (AuthService)
+ */
+export const USER_NOT_AUTHORIZED = 'auth/user_not_authorized' as const;
+
+/**
  * User update failure
  * (UserService)
  */

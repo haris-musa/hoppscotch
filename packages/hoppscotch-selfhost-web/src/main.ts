@@ -34,6 +34,9 @@ import { ProxyKernelInterceptorService } from "@hoppscotch/common/platform/std/k
 import { ExtensionKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/extension"
 import { BrowserKernelInterceptorService } from "@hoppscotch/common/platform/std/kernel-interceptors/browser"
 
+// Auth guard - forces login for all routes
+import { authGuardModule } from "@app/modules/auth-guard"
+
 const PLATFORM_CONFIG = {
   web: {
     auth: webAuth,
@@ -181,6 +184,8 @@ async function initApp() {
     backend: stdBackendDef,
     additionalLinks: [HeaderDownloadableLinksService],
     addedServices: [],
+    // Auth guard - requires login for all platforms (web + desktop)
+    addedHoppModules: [authGuardModule],
   })
 
   if (platform === "desktop") {

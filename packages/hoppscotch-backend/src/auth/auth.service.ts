@@ -15,6 +15,7 @@ import {
   MAGIC_LINK_EXPIRED,
   USER_NOT_FOUND,
   INVALID_REFRESH_TOKEN,
+  USER_NOT_AUTHORIZED,
 } from 'src/errors';
 import { validateEmail } from 'src/utils';
 import {
@@ -39,7 +40,7 @@ export class AuthService {
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
     private readonly infraConfigService: InfraConfigService,
-  ) {}
+  ) { }
 
   /**
    * Generate Id and token for email Magic-Link auth
@@ -199,11 +200,15 @@ export class AuthService {
 
   /**
    * Create User (if not already present) and send email to initiate Magic-Link auth
+   * Only allows sign-in for existing users OR users with pending team invitations.
    *
    * @param email User's email
    * @returns Either containing DeviceIdentifierToken
    */
-  async signInMagicLink(email: string, origin: string) {
+  async signInMagicLink(
+    email: string,
+    origin: string,
+  ): Promise<E.Either<RESTError, DeviceIdentifierToken>> {
     if (!validateEmail(email))
       return E.left({
         message: INVALID_EMAIL,
@@ -214,6 +219,25 @@ export class AuthService {
     const queriedUser = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(queriedUser)) {
+      // User doesn't exist - check if they have a pending team invitation
+      const hasPendingInvite = await this.prisma.teamInvitation.findFirst({
+        where: {
+          inviteeEmail: {
+            equals: email,
+            mode: 'insensitive',
+          },
+        },
+      });
+
+      if (!hasPendingInvite) {
+        // No existing user and no pending invitation - reject sign-in
+        return E.left({
+          message: USER_NOT_AUTHORIZED,
+          statusCode: HttpStatus.FORBIDDEN,
+        });
+      }
+
+      // User has a pending invitation, allow account creation
       user = await this.usersService.createUserViaMagicLink(email);
     } else {
       user = queriedUser.value;
