@@ -306,8 +306,11 @@ export class TeamSearchService extends Service {
 
         if (!collection) return
 
-        this.searchResultsCollections[collection.id].data =
-          collection.data ?? null
+        // Check if collection exists in searchResultsCollections before setting data
+        if (this.searchResultsCollections[collection.id]) {
+          this.searchResultsCollections[collection.id].data =
+            collection.data ?? null
+        }
       })
 
       const collectionTree = convertToTeamTree(
@@ -411,7 +414,7 @@ export class TeamSearchService extends Service {
 
       const inheritedAuth = parentInheritedData.auth
 
-      if (inheritedAuth.authType !== "inherit") {
+      if (inheritedAuth && inheritedAuth.authType !== "inherit") {
         return E.right({
           parentID: collectionID,
           parentName: collection.title,

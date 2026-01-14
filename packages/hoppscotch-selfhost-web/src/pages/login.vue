@@ -7,7 +7,7 @@
       <h1 class="text-xl font-semibold text-secondaryDark mb-2">
         Sign in to continue
       </h1>
-      <p class="text-secondaryLight text-sm mb-6">
+      <p class="text-secondaryLight text-sm mb-8">
         Access is restricted to authorized users
       </p>
       <HoppButtonPrimary
