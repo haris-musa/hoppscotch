@@ -69,7 +69,16 @@ export class WorkspaceService extends Service<WorkspaceServiceEvent> {
     // and initialize it when the user logs in
     watch(
       this.currentUser,
-      (user) => {
+      async (user) => {
+        if (!user && platform.auth.getProbableUser()) {
+          await platform.auth.waitProbableLoginToConfirm()
+          const confirmedUser = platform.auth.getCurrentUser()
+          if (confirmedUser && !this.managedTeamListAdapter.isInitialized) {
+            this.managedTeamListAdapter.initialize()
+          }
+          return
+        }
+
         if (!user && this.managedTeamListAdapter.isInitialized) {
           this.managedTeamListAdapter.dispose()
         }
