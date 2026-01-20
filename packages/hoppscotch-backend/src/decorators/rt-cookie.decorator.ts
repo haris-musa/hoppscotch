@@ -7,6 +7,16 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 export const RTCookie = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
-    return ctx.getContext().req.cookies['refresh_token'];
+    const req = ctx.getContext().req;
+    const refreshToken = req.cookies?.['refresh_token'];
+    if (refreshToken) return refreshToken;
+
+    const authorization = req.headers?.['authorization'];
+    if (typeof authorization === 'string') {
+      const [scheme, token] = authorization.split(' ');
+      if (scheme === 'Bearer' && token) return token;
+    }
+
+    return undefined;
   },
 );
